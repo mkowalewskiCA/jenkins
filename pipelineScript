@@ -1,0 +1,13 @@
+node {
+   stage 'Build Application'
+   // do what you need to do to build your application
+   echo 'Compilation is done'
+   stage 'Deploy Application'
+   // do what you need to do to deploy your application
+   echo 'Deploy is done'
+   stage 'Run JMeter Test'
+   sh 'sudo /opt/apache-jmeter-3.2/bin/jmeter.sh -Jthreads=5 -Jjmeter.save.saveservice.output_format=xml -n -t /opt/apache-jmeter-3.2/bin/scripts/Jenkins-Jmeter-Demo.jmx -l TestResults-$threads-Threads.jtl'
+   step([$class: 'ArtifactArchiver', artifacts: '**/*.jtl, **/jmeter.log'])
+   stage 'Publish Performance Report'
+   perfReport errorFailedThreshold: 10, errorUnstableThreshold: 5, sourceDataFiles: '**/*.jtl'
+}
